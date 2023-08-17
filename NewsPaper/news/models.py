@@ -8,7 +8,7 @@ class Author(models.Model):
 
 
     def update_rating(self):
-        postRat = self.post_set.aggregate(Sum('rating'))
+        postRat = self.post_set.aggregate(postRating=Sum('rating'))
         pRat = 0
         pRat += postRat.get('postRating')
 

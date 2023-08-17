@@ -1,0 +1,206 @@
+(venv) iMac-Ayzat-Elena-2:NewsPaper ayzatmalov$ python manage.py shell
+
+>>> from news.models import *
+
+
+# 1 - CREATING TWO USERS:
+# 1.1, create first user:
+>>> u1 = User.objects.create_user(username='User_1')
+>>> u1
+<User: User_1>
+
+# 1.2, create second user:
+>>> u2 = User.objects.create_user(username='User_2')
+>>> u2
+<User: User_2>
+
+
+# 2 - CREATING TWO OBJECTS FOR MODEL AUTHOR ASSOCIATED WITH USERS:
+# 2.1, first object of model Author:
+>>> Author.objects.create(authorUser=u1)
+<Author: Author object (1)>
+
+# 2.2, second object of model Author:
+>>> Author.objects.create(authorUser=u2)
+<Author: Author object (2)>
+
+
+# 3 - ADD 4 CATEGORIES IN MODEL CATEGORY:
+# 3.1, 1-st category:
+>>> Category.objects.create(name='IT')
+<Category: Category object (1)>
+
+# 3.2, 2-d category:
+>>> Category.objects.create(name='TV')
+<Category: Category object (2)>
+
+# 3.3, 3-d category:
+>>> Category.objects.create(name='DIY')
+<Category: Category object (3)>
+
+# 3.4, 4-th category:
+>>> Category.objects.create(name='SPORT')
+<Category: Category object (4)>
+
+# 4 - ADD 2 ARTICLES & 1 NEWS:
+# 4.1, add article:
+>>> author = Author.objects.get(id=1)
+>>> author
+<Author: Author object (1)>
+>>> Post.objects.create(author=author, categoryType='AR', title='some title 1', text='some text about some title 1')
+<Post: Post object (1)>
+>>> Post.objects.get(id=1).text
+'some text about some title 1'
+
+# 4.2, add article:
+>>> author = Author.objects.get(id=1)
+>>> author
+<Author: Author object (1)>
+>>> Post.objects.create(author=author, categoryType='AR', title='some title 2', text='some text about some title 2')
+<Post: Post object (2)>
+>>> Post.objects.get(id=2).text
+'some text about some title 2'
+
+# 4.3, add news:
+>>> author = Author.objects.get(id=2)
+>>> author
+<Author: Author object (2)>
+>>> Post.objects.create(author=author, categoryType='NW', title='some title 3', text='some text about some title 3'
+... )
+<Post: Post object (3)>
+>>> Post.objects.get(id=3).text
+'some text about some title 3'
+
+# 5 - ASSIGN CATEGORIES FOR TWO ARTICLES AND ONE NEWS (2 CATEGORIES FOR EACH ARTICLE/NEWS):
+# 5.1, for article(id=1) = IT & TV:
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=1))
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=2))
+
+# 5.2, for article(id=2) = TV & DIY:
+>>> Post.objects.get(id=2).postCategory.add(Category.objects.get(id=2))
+>>> Post.objects.get(id=2).postCategory.add(Category.objects.get(id=3))
+
+# 5.3, for news(id=3) = DIY & SPORT:
+>>> Post.objects.get(id=3).postCategory.add(Category.objects.get(id=3))
+>>> Post.objects.get(id=3).postCategory.add(Category.objects.get(id=4))
+
+
+# 6 - CREATE FOUR COMMENTS TO DIFFERENT OBJECTS OF MODEL POST (THERE ARE, ONE OR TWO COMMENTS FOR ONE OBJECT):
+# 6.1, for Post object(id=1):
+>>> Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=1).authorUser, text='any text from any user')
+<Comment: Comment object (1)>
+>>> Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=2).authorUser, text='any second text from author(id=2)'
+... )
+<Comment: Comment object (2)>
+
+# 6.2, for Post object(id=2):
+>>> Comment.objects.create(commentPost=Post.objects.get(id=2), commentUser=Author.objects.get(id=2).authorUser, text='any text for article(id=2) from author(id=2)')
+<Comment: Comment object (3)>
+
+# 6.3, for Post object(id=3):
+>>> Comment.objects.create(commentPost=Post.objects.get(id=3), commentUser=Author.objects.get(id=1).authorUser, text='any comment for news(id=3) from author(id=1)')
+<Comment: Comment object (4)>
+
+
+# 7 - USING FUNCTIONS (METHODS) LIKE() & DISLIKE() FOR ARTICLE/NEWS AND COMMENTS (and for rating correction):
+# 7.1, positive change to comment(id=1) for article(Post id=1):
+>>> Comment.objects.get(id=1).like()
+>>> Comment.objects.get(id=1).rating
+1
+
+# 7.2, twice negative change to comment(id=1) for article(Post id=1):
+>>> Comment.objects.get(id=1).dislike()
+>>> Comment.objects.get(id=1).dislike()
+>>> Comment.objects.get(id=1).rating
+-1
+
+# 7.3, like for article(Post id = 1):
+>>> Post.objects.get(id=1).like()
+>>> Post.objects.get(id=1).rating
+1
+
+# 8 - UPDATE RATING OF USERS:
+# 8.1 - update rating for User (Author with id=1):
+>>> a1 = Author.objects.get(id=1)
+>>> a1.update_rating()
+>>> a1.ratingAuthor
+2
+
+# 8.2 - update rating for User (Author with id=2):
+>>> a2 = Author.objects.get(id=2)
+>>> a2.update_rating()
+>>> a2.ratingAuthor
+0
+
+# 9 - SHOW USERNAME & HIS RATING FOR BEST USER (applying a sort and returning the fields of the first object):
+>>> best_a = Author.objects.order_by('-ratingAuthor')
+>>> best_a
+<QuerySet [<Author: Author object (1)>, <Author: Author object (2)>]>
+>>> for i in best_a:
+...     i.ratingAuthor
+...     i.authorUser.username
+...
+2
+'User_1'
+0
+'User_2'
+>>> best_a1 = Author.objects.order_by('-ratingAuthor')[:1]
+>>> for i in best_a1:
+...     i.ratingAuthor
+...     i.authorUser.username
+...
+2
+'User_1'
+>>>
+
+
+# 10 - SHOW FOR BEST ARTICLE NEST ATRIBUTES: DATE ADDED, USERNAME, TITLE & PREVIEW:
+>>> best_p = Post.objects.order_by('-rating')
+>>> best_p
+<QuerySet [<Post: Post object (1)>, <Post: Post object (2)>, <Post: Post object (3)>]>
+>>> for i in best_p:
+...     i.rating
+...
+1
+0
+0
+
+# 10.2, with get (it able also with values):
+>>> best_p1 = Post.objects.order_by('-rating')[:1]
+>>> best_p1
+<QuerySet [<Post: Post object (1)>]>
+>>> Post.objects.get(id=1).dateCreation
+datetime.datetime(2023, 8, 16, 19, 13, 2, 333645, tzinfo=datetime.timezone.utc)
+>>> Post.objects.get(id=1).author.authorUser
+<User: User_1>
+>>> Post.objects.get(id=1).title
+'some title 1'
+>>> Post.objects.get(id=1).preview()
+'some text about some title 1...'
+
+
+# 11 - SHOW ALL COMMENTS (DATE, USERNAME, RATING, TEXT) FOR THIS ARTICLE:
+>>> Post.objects.order_by('-rating')[0].comment_set.all()
+<QuerySet [<Comment: Comment object (1)>, <Comment: Comment object (2)>]>
+>>> com_1=Comment.objects.get(id=1)
+>>> com_1
+<Comment: Comment object (1)>
+>>> com_2=Comment.objects.get(id=2)
+>>> com_2
+<Comment: Comment object (2)>
+>>> com_1.dateCreation
+datetime.datetime(2023, 8, 16, 20, 15, 55, 864767, tzinfo=datetime.timezone.utc)
+>>> com_2.dateCreation
+datetime.datetime(2023, 8, 16, 20, 18, 14, 566622, tzinfo=datetime.timezone.utc)
+>>> com_1.commentUser
+<User: User_1>
+>>> com_2.commentUser
+<User: User_2>
+>>> com_1.rating
+-1
+>>> com_2.rating
+0
+>>> com_1.text
+'any text from any user'
+>>> com_2.text
+'any second text from author(id=2)'
