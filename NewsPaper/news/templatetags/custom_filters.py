@@ -4,7 +4,7 @@ register = template.Library()
 
 bad_words = [
     'about',
-    'tommorow',
+    'tomorrow',
     'some',
 ]
 
