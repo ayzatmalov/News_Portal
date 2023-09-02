@@ -8,18 +8,12 @@ bad_words = [
     'some',
 ]
 
-text = []
 @register.filter()
-def censor(text):
-    list = text.split()
-    censor_list = []
-    for word in list:
-        w = []
+def censor(value):
+    text = value.split()
+    for i, word in enumerate(text):
         if word in bad_words:
-            censor_word = w[0] + '*'
-            censor_list.append(word.replace(w, censor_word))
-        else:
-            censor_list.append(word)
+            text[i] = word[0] + '***'
+    return ' '.join(text)
 
-    return censor_list
 

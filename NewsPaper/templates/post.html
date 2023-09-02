@@ -10,9 +10,9 @@
 {% block content %}
     <h1>The Post</h1>
     <hr>
-    <h3>Title: {{ post.title }}</h3>
+    <h3>Title: {{ post.title|censor }}</h3>
     <h3>Date: {{ post.date_creation|date:'d M Y' }}</h3>
     <h3>Author: {{ post.author_id}}</h3>
-    <h4>The post: {{ post.text }}</h4>
+    <h4>The post: {{ post.text|censor }}</h4>
     <hr>
 {% endblock content %}
