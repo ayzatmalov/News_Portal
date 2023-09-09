@@ -9,6 +9,7 @@ class PostList(ListView):
     ordering = 'title'
     template_name = 'news.html'
     context_object_name = 'news'
+    paginate_by = 10 # show only first 10 notes on page
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
